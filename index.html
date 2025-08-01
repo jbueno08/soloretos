@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retos</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #ffebee;
+            color: #090909;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #c2185b;
+        }
+        button {
+            background-color: #e91e63;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            margin: 10px;
+            border-radius: 50px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background-color: #c2185b;
+            transform: scale(1.05);
+        }
+        button:disabled {
+            background-color: #bdbdbd;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .challenge-display {
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+            font-size: 20px;
+            padding: 20px;
+            border: 2px dashed #e91e63;
+            border-radius: 10px;
+        }
+        .hidden {
+            display: none;
+        }
+        .countdown {
+            font-size: 48px;
+            font-weight: bold;
+            color: #e91e63;
+            margin: 20px 0;
+        }
+        .shot-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Retos</h1>
+        
+        <!-- Pantalla inicial -->
+        <div id="home-screen">
+            <p>Presiona el botón para generar un reto</p>
+            <button id="generate-btn">Generar Reto</button>
+        </div>
+        
+        <!-- Pantalla de reto -->
+        <div id="challenge-screen" class="hidden">
+            <div class="challenge-display">
+                <p id="challenge-text"></p>
+            </div>
+            <button id="completed-btn">Reto Cumplido</button>
+            <button id="shot-btn">Tomar Shot</button>
+        </div>
+        
+        <!-- Pantalla de shot -->
+        <div id="shot-screen" class="hidden shot-screen">
+            <p>¡Preparate para tu shot!</p>
+            <button id="start-shot-btn">Empezar</button>
+            <div id="countdown" class="countdown hidden">5</div>
+        </div>
+    </div>
+
+    <script>
+        // Lista completa de retos
+        const challenges = [
+            "Besa el cuello por 1 minuto, sin usar manos.",
+            "Besa detrás de la oreja con susurros incluidos.",
+            "Beso en la clavícula… lento y con mordidita final.",
+            "Besa la espalda baja mientras acaricias con la lengua.",
+            "Besa la parte interna del muslo, sin llegar al límite.",
+            "Besa el ombligo haciendo un pequeño círculo.",
+            "Besa cada dedo de la mano lentamente.",
+            "Besa la nuca desde atrás, sin decir nada.",
+            "Besa el tobillo y sube suavemente hasta la rodilla.",
+            "Besa los labios pero sin tocar con las manos.",
+            "Beso de mariposa en el pecho (con pestañas).",
+            "Besa la cintura mientras rodeas con tus brazos.",
+            "Besa los glúteos con una mordida ligera (si hay confianza).",
+            "Beso lento en cada costilla (si está sin ropa).",
+            "Besa el dorso del pie.",
+            "Besa con lengua una parte que no esperaría.",
+            "Besa mientras le tapas los ojos.",
+            "Besa el pecho (si se puede) durante 30 segundos.",
+            "Beso detrás de la rodilla.",
+            "Besa desde la barbilla hasta el centro del pecho.",
+            "Besa el muslo mientras mantienes contacto visual.",
+            "Besa el interior del brazo.",
+            "Beso húmedo en el cuello mientras lo muerdes.",
+            "Besa mientras susurras 'quiero más'.",
+            "Besa con una pluma o algo suave.",
+            "Besa la parte baja de la espalda en círculos.",
+            "Besa sin parar desde el pecho hasta el ombligo.",
+            "Beso en la entrepierna (por encima de la ropa).",
+            "Besa cada parte del rostro con ternura.",
+            "Besa la espalda mientras se arquea.",
+            "Besa detrás de los muslos, sin tocar.",
+            "Besa los hombros como si los marcaras.",
+            "Besa todo el contorno de la cara.",
+            "Besa un punto erógeno olvidado.",
+            "Besa justo debajo del busto o pectorales.",
+            "Besa la columna vertebral de arriba a abajo.",
+            "Besa la línea del bikini/boxer.",
+            "Beso con presión en los pezones (si se permite).",
+            "Beso suave y luego fuerte en el mismo lugar.",
+            "Besa sin tocar con las manos durante todo el reto.",
+            "Besa con hielo en la boca.",
+            "Besa con miel o algo dulce en la piel.",
+            "Besa mientras acaricias los muslos.",
+            "Beso en el lóbulo con mordida final.",
+            "Beso con cosquillas.",
+            "Besa una zona prohibida, pero solo por 2 segundos.",
+            "Besa al ritmo de una canción.",
+            "Besa cada centímetro del pecho.",
+            "Besa entre los dedos del pie si se atreve.",
+            "Besa donde más se sonroje.",
+            "Besa de espaldas, mientras lo tomas por la cintura.",
+            "Besa cada lunar o marca que tenga.",
+            "Beso en la pelvis (zona límite).",
+            "Besa una zona mientras te mira fijamente.",
+            "Besa con los ojos cerrados donde él/ella elija.",
+            "Beso con lengua, pero sin meterla del todo.",
+            "Besa alrededor de su ropa interior, sin quitarla.",
+            "Besa con mordida leve la zona más sensible.",
+            "Besa con ternura después de haber sido travieso.",
+            "Besa 2 minutos seguidos, lento, sin despegarte.",
+            "Besa por 2 minutos con lengua, profundo y húmedo.",
+            "Beso mordelón: mordidas suaves mientras besas.",
+            "Beso contra la pared.",
+            "Beso con las manos en su trasero.",
+            "Besa con las manos atadas o sujetas.",
+            "Beso en silencio total, con respiración compartida.",
+            "Beso con caricias en zonas calientes.",
+            "Besa mientras le susurras lo que harás después.",
+            "Besa sin despegarte durante una canción lenta.",
+            "Beso con empuje: uno toma el control, el otro se deja.",
+            "Beso con los ojos vendados.",
+            "Beso después de un 'te deseo'.",
+            "Beso acostados, sin usar las manos.",
+            "Besa mientras acaricias los muslos o caderas.",
+            "Beso con giro: uno se pone encima lentamente.",
+            "Besa mientras simulan hacer el amor con ropa.",
+            "Beso que comienza suave y termina agresivo.",
+            "Besa interrumpiendo sus frases.",
+            "Besa mientras se frotan lentamente.",
+            "Bailen una canción sensual (tipo Rauw Alejandro) pegaditos, rozando cuerpos.",
+            "Uno se sienta, el otro hace un baile lento sobre él/ella.",
+            "Bailen reggaetón lento, sin separarse en ningún momento.",
+            "Bailen con ropa interior (si hay confianza).",
+            "Baile al estilo 'striptease', quitando una prenda.",
+            "Bailen tocándose solo con la punta de los dedos.",
+            "Uno baila mientras el otro solo observa y toca.",
+            "Baile con contacto visual y provocación.",
+            "Bailen con aceite o lubricante (si es parte del juego).",
+            "Baile con lengua: entre besos, se rozan.",
+            "Bailen mientras se acarician por dentro de la ropa.",
+            "Baile en la cama, sin saltos… solo frote.",
+            "Baile con manos atadas atrás.",
+            "Baile con gemidos fingidos.",
+            "Baile en silencio, pero con respiraciones profundas.",
+            "Baile frente al espejo, mirándose.",
+            "Baile mientras uno se va desnudando lentamente.",
+            "Bailen besándose todo el tiempo.",
+            "Bailale a tu pareja la canción que el/ella escoja",
+            "Baile lento, con roce de partes íntimas (solo si ambos quieren)."
+        ];
+        
+        // Elementos del DOM
+        const homeScreen = document.getElementById('home-screen');
+        const challengeScreen = document.getElementById('challenge-screen');
+        const shotScreen = document.getElementById('shot-screen');
+        const challengeText = document.getElementById('challenge-text');
+        const generateBtn = document.getElementById('generate-btn');
+        const completedBtn = document.getElementById('completed-btn');
+        const shotBtn = document.getElementById('shot-btn');
+        const startShotBtn = document.getElementById('start-shot-btn');
+        const countdownElement = document.getElementById('countdown');
+        
+        // Variables para el contador
+        let countdown;
+        let secondsLeft;
+        
+        // Generar reto aleatorio
+        generateBtn.addEventListener('click', () => {
+            const randomChallenge = challenges[Math.floor(Math.random() * challenges.length)];
+            challengeText.textContent = randomChallenge;
+            homeScreen.classList.add('hidden');
+            challengeScreen.classList.remove('hidden');
+        });
+        
+        // Botón Reto Cumplido
+        completedBtn.addEventListener('click', () => {
+            challengeScreen.classList.add('hidden');
+            homeScreen.classList.remove('hidden');
+        });
+        
+        // Botón Tomar Shot
+        shotBtn.addEventListener('click', () => {
+            challengeScreen.classList.add('hidden');
+            shotScreen.classList.remove('hidden');
+            countdownElement.classList.add('hidden');
+            startShotBtn.classList.remove('hidden');
+        });
+        
+        // Iniciar cuenta regresiva del shot
+        startShotBtn.addEventListener('click', () => {
+            startShotBtn.classList.add('hidden');
+            countdownElement.classList.remove('hidden');
+            
+            secondsLeft = 5;
+            countdownElement.textContent = secondsLeft;
+            
+            countdown = setInterval(() => {
+                secondsLeft--;
+                countdownElement.textContent = secondsLeft;
+                
+                if (secondsLeft <= 0) {
+                    clearInterval(countdown);
+                    setTimeout(() => {
+                        shotScreen.classList.add('hidden');
+                        homeScreen.classList.remove('hidden');
+                    }, 1000);
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
